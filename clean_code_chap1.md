@@ -1,4 +1,4 @@
-# Code
+# Clean Code - Chapter 1
 
 - Nunca vamos nos livrar de códigos e linguagens de programação
     - Código é a implementação dos detalhes de uma abstração/conceito/requisito
