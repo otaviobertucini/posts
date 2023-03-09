@@ -92,13 +92,13 @@ To create a new thread in Node, we instantiate a object of the class `Worker` fr
 
 On the child thread (see the worker.js file), we use the `parentPort` object from `worker_threads` library to communicate with the parent thread. The `parentPort.on('message', cb)` is executed when the child receives a message. In our case, when receiving a message from the parent thread we will execute the `heavyLoad` function that was previously being executed inside the exepress route. After executing the heavy load, the child sends a message to the parent saiyng the execution was done.
 
-Back in the parent, when receiving a message from the child thread via the `parentPort.on('message')` method, we will resolve the Promise that we created and pass the massage we received as the value of the Promise, that in this case is "Done heavy load!". Therefore, we send the result of the Promise as the response of the request.
+Back in the parent, when receiving a message from the child thread via the `parentPort.on('message')` method, we will resolve the Promise that we created and pass the massage we received as the value of the Promise, that in this case is "Done heavy load!". Therefore, we send the result of the Promise as the response of the request. 
 
-Doing so we execute the heavy load in an asynchronous manner and Node can execute other things while the child thread is executing. To prove it, if we send a request to "/heavy" and shortly thereafter make a request to "/fast", the second request will be executed immediatelly, not having to wait until the "/heavy" request to be done. Remember that since we are creating new threads, the requests and the heavy load are executed in the same machine. But what if we would like to execute the heavy load in other machine? This is possible with Javascript jobs.
+Doing so we execute the heavy load in an asynchronous manner and Node can execute other things while the child thread is executing. To prove it, if we send a request to "/heavy" and shortly thereafter make a request to "/fast", the second request will be executed immediatelly, not having to wait until the "/heavy" request to be done. Remember that since we are creating new threads, the requests and the heavy load are executed in the same server. But what if we would like to execute the heavy load in other server? This is possible with Javascript jobs.
 
 ## Jobs
 
-Another option is to use jobs to make the heavy load be executed in another machine. Let's say we have a server that is configured to handle heavy and long work loads and we want to pass all the heavy executions to it. Then, when receiving a request on "/heavy" endpoint, instead of executing the heavy load on the `express` server, we will execute it on the heavy load server. We can use the `bullmq` library to achieve this, by creating a queue that will be the linking between the express server and the heavy load server. The express server add items to the queue and the heavy load server listen to new items and process them.
+Another option is to use jobs to make the heavy load be executed in another server. Let's say we have a server that is configured to handle heavy and long work loads and we want to pass all the heavy executions to it. Then, when receiving a request on "/heavy" endpoint, instead of executing the heavy load on the `express` server, we will execute it on the heavy load server. We can use the `bullmq` library to achieve this, by creating a queue that will be the linking between the express server and the heavy load server. The express server add items to the queue and the heavy load server listen to new items on the queue and process them.
 
 ```js
 // server.js
@@ -120,7 +120,7 @@ app.get("/heavy", async (req, res) => {
 
   await queue.add("heavyLoad", 1e10);
 
-  res.json({ processing: true });
+  return res.status(200).json({ processing: true });
 });
 
 app.use("/fast", (req, res) => {
@@ -135,27 +135,40 @@ app.listen(2001, () => console.log("server started"));
 const bullmq = require("bullmq");
 const { Worker } = bullmq;
 
-const worker = new Worker(
-  "Loads",
-  async (job) => {
-    if (job.name === "heavyLoad") {
-      console.log("entered heavy load");
-      let i = 0;
-      for (i; i < job.data; i++) {}
-      console.log("exited heavy load");
-      return i;
-    }
-  },
-  {
-    connection: {
-      host: "127.0.0.1",
-      port: "6379",
-    },
-    concurrency: 1,
+async function processJob(job) {
+  if (job.name === "heavyLoad") {
+    console.log("entered heavy load");
+    let i = 0;
+    for (i; i < job.data; i++) {}
+    console.log("exited heavy load");
+    return i;
   }
-);
+}
+
+const worker = new Worker("Loads", processJob, {
+  connection: {
+    host: "127.0.0.1",
+    port: "6379",
+  },
+  concurrency: 1,
+});
 
 worker.on("completed", (job, result) => {
   console.log(result);
 });
+
 ```
+
+On the `server.js` code, I create a queue using the `Queue` class from `bullmq` library and I passed to the contructor a name, that in this case is "Loads", and a Redis connection object. `bullmq` uses Redis to build its queue and that the reason we need to pass a Redis server as parameter. 
+
+On the "/heavy" route, we will add a new item on the queue created in the step above intead of executing the heavy load each time the route is called. We do that by using the method `queue.add`. Once the item is addded to the queue, we just return success to the requester. So, using jobs we will not wait until the execution of the heavy load is done, like we did in the Workers approach.
+
+Now, we must have the second server to read the items in the queue and execute them. To do this, we create a new file and instantiate a new `Worker` class from `bullmq` library. This class receives three argumets: the name of the queue to be read, a callback that will be called once new messages arrive to the queue and a settings object, containing the connetion data to the Redis server that is storing the queue and how many concurrent jobs can be runned at a time. 
+
+In our example we passed the `processJob` in the callback argument and it will be executed each time new items are added to the queue. The function checks if the name of the job is "heavyLoad" and if so, executes the heavy load code with the value passed as the item data and when it completes the value is returned. We also tell the worker that each time a job is complete the result must be logged, by using the `worker.on("completed", cb)` method. 
+
+Note that each file will generate one server, which means the requests will be executed in one server and the heavy loads on other. We also made the heavy load server execute on job at a time using the `concurrency` option, to ensure that it won't break when a lot of jobs need to be handled. 
+
+## Conclusion
+
+In this article, it was showed how NodeJS can handle heavy synchronous code without blocking the event loop by using Workers and Jobs. In the next one I will talk about Clusters, a feature that also allows Node to deal with blocking behaviour on servers. 
