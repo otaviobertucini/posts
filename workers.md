@@ -1,4 +1,4 @@
-# 🚧 Under construction 🚧
+# JObs in background
 
 As I said in my other post about event loop, Node can only run one thing at a time. This fact means that some heavy operations can block the event loop, making Node unavailable to proccess new requests or events that might appear.
 
