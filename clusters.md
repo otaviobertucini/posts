@@ -1,0 +1,5 @@
+# Clusters
+
+As I said in previous articles, when Node.js starts, it creates a single thread to handle the event loop. However, this single thread can only utilize a single CPU core, which can limit the performance and scalability of applications that require heavy processing or handle a large number of requests.
+
+To overcome this limitation, Node.js provides a built-in module called "cluster". The "cluster" module allows developers to create a cluster of worker processes that can run in parallel and share the workload. Each worker process runs in a separate thread and has its own event loop. When a new request arrives, the master process adds it to a queue and distributes it among the worker processes. Each worker process picks up the next event in its queue and processes it using its own event loop.
