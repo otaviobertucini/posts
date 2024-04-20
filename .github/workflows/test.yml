@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: gition
-        uses: otaviobertucini/gition@v0
+        uses: otaviobertucini/gition@v0.1
         with:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           NOTION_PAGE: https://www.notion.so/Frontend-8da3f433b0dd47b28821d9c124c1a356
