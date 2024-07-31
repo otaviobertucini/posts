@@ -24,3 +24,8 @@ jobs:
         with:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
           NOTION_PAGE: 8da3f433-b0dd-47b2-8821-d9c124c1a356
+
+      - name: Save changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: Commit changes
