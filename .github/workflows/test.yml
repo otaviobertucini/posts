@@ -23,4 +23,4 @@ jobs:
         uses: otaviobertucini/gition@v0.12
         with:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
-          NOTION_PAGE: https://www.notion.so/Frontend-8da3f433b0dd47b28821d9c124c1a356
+          NOTION_PAGE: 8da3f433-b0dd-47b2-8821-d9c124c1a356
