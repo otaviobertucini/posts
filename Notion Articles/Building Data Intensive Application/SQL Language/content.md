@@ -1,0 +1,5 @@
+- SQL is declarative, meaning we don’t tell the database how to do something. Rather, we give the result or the pattern that we are looking for
+	- It hides implementation details of the database engine
+	- So a given query can be executed differently depending on the context it is being executed (indexes, size of table, foreign key)
+	- It also an advantage in parallel jobs, where a same query can be executed in different ways
+- CSS is another example of declarative languages
