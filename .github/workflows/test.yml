@@ -23,7 +23,7 @@ jobs:
         uses: otaviobertucini/gition@v0.16
         with:
           NOTION_SECRET: ${{ secrets.NOTION_SECRET }}
-          NOTION_PAGES: 8da3f433-b0dd-47b2-8821-d9c124c1a356;3f52f0203a3e4aedb0931227bb485545
+          NOTION_PAGES: 3f52f0203a3e4aedb0931227bb485545
           ROOT_DIR: Notion Articles
 
       - name: Save changes
