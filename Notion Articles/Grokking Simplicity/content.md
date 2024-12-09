@@ -151,7 +151,9 @@
 	- This is a code smell where the body of the function determines the behavior of the function, but this behavior could be expressed as an function argument
 - Replace body with callback
 	- Functions that follows a _before, behavior, after_ pattern, where before and after is equal to all functions and behavior can be passed as a function argument
-- 
+- One powerful high-order function is reduce
+	- We can write _map_ and _filter_ with it
+	- We can write a _undo/redo_ pattern with it, just by applying reduce if we want to change something and using the previous state if we want to redo
 
 
 
