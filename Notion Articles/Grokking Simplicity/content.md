@@ -154,6 +154,12 @@
 - One powerful high-order function is reduce
 	- We can write _map_ and _filter_ with it
 	- We can write a _undo/redo_ pattern with it, just by applying reduce if we want to change something and using the previous state if we want to redo
+- Chaining high-orders functions (_reduce, map, filter_) can be a good option to perform operations
+	- We just need to take care when doing big chaining leads to the creation of multiple middle arrays that takes memory space
+		- Usually this is not a problem since modern languages have fast and effective garbage collectors
+		- But we can avoid this (if the middle arrays are the bottleneck of the code) by merging some chaining steps
+		- For example, if we have one _map_ that takes the name of the customers in one array and a _filter_ that select the name grater then 5 characters we can transform if into a single _filter_
+- 
 
 
 
