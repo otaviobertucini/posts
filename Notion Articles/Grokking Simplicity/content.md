@@ -159,7 +159,6 @@
 		- Usually this is not a problem since modern languages have fast and effective garbage collectors
 		- But we can avoid this (if the middle arrays are the bottleneck of the code) by merging some chaining steps
 		- For example, if we have one _map_ that takes the name of the customers in one array and a _filter_ that select the name grater then 5 characters we can transform if into a single _filter_
-- 
 
 
 
